@@ -1,0 +1,12 @@
+help:
+	@printf "====== cs102lings Annotated Solutions ======\n\n"
+	@printf " Navigate to the desired lab dir: \n\n"
+	@printf "     > cd labs/intro\n\n"
+	@printf " To view the file: \n\n"
+	@printf "     > cat intro.cpp\n\n"
+	@printf " To compile and run the file:\n\n"
+	@printf "     > make\n"
+	@printf "     > ./intro\n\n"
+	@printf " To run the tests:\n\n"
+	@printf "     > make test\n\n"
+	@printf "============================================\n"
