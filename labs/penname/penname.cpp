@@ -1,21 +1,28 @@
-/* Program Name: PROGRAM NAME HERE
- * Student Name: YOUR NAME HERE
- * Net ID: NETID HERE
- * Student ID: STUDENT ID HERE (000-12-3456)
- * Program Description: BRIEF, 1-2 SENTENCE DESCRIPTION HERE */
-
-//! Remember: your comments Remember: your
-//! formatting and indentation
-//  - auto-format in vim: gg=G in normal mode, in vscode: alt+shift+f
-//! Remember: check your solution with the gradescripts
-//  - gradescript command: `python3.11 scripts/test.py penname.cpp`
-
 #include <iostream>
-#include <string>
 
 using namespace std;
 
 int main() {
-    // TODO
-    return 0;
+    string first_name;
+    string middle_name;
+    int age;
+    int street_number;
+    string street_name;
+    string street_type;
+    string city;
+
+    cout << "Enter your first and middle names: ";
+    cin >> first_name >> middle_name;
+    cout << "Enter your age: ";
+    cin >> age;
+    cout << "Enter your street number, name, and type: ";
+    cin >> street_number >> street_name >> street_type;
+    cout << "Enter your city of birth: ";
+    cin >> city;
+    
+    cout << endl;
+
+    cout << "Your penname name is " << city << " " << street_name << "."<< endl;
+    cout << "You will write as a " << (street_number % age) * 3 << " year old." << endl;
+    cout << "Your address is " << ((age * 425) / street_number) << " " << middle_name << " " << street_type << "." << endl;
 }

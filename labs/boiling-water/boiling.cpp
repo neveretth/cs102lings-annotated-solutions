@@ -1,36 +1,65 @@
-/* Program Name: PROGRAM NAME HERE
- * Student Name: YOUR NAME HERE
- * Net ID: NETID HERE
- * Student ID: STUDENT ID HERE (000-12-3456)
- * Program Description: BRIEF, 1-2 SENTENCE DESCRIPTION HERE */
-
-#include <cmath> // new: for pow and log
+#include <cmath>
 #include <fstream>
 #include <iostream>
-#include <sstream> // new: for istringstream
+#include <sstream>
 #include <string>
 #include <vector>
 
 using namespace std;
 
-double elevationToBoilingPoint(const double elevation) {
-    double boilingPoint = 0.0;
+double elevation_to_boiling_point(const double elevation) {
+    double boiling_point = 0.0;
+    double pressure = 29.921 * pow((1 - (0.0000068753 * elevation)), 5.2559);
+    
+    boiling_point = 49.161 * log(pressure) + 44.932;
 
-    // TODO Calculate the boiling point of water at the given elevation
-    //      using the equation provided in the lab description.
-
-    return boilingPoint;
+    return boiling_point;
 }
 
 int main(int argc, char **argv) {
 
-    // TODO
-    // - Use argv and argc to get a filename. Error check
-    // - Read the file, error check, and store the city names and elevations in
-    //   vectors (you can discard the state names)
-    // - Ask for which city
-    // - Calculate the boiling point at that city's elevation using the given
-    //   formulas
+    if (argc == 1) {
+       cerr << "usage: ./boiling filename" << endl; 
+       return 1;
+    }
+    
+    ifstream fin(argv[1]);
+    if(!fin.is_open()) {
+       cerr << "File failed to open." << endl; 
+       return 1;
+    }
 
+    string header_line;
+    getline(fin, header_line);
+  
+    string line;
+    vector <string> cities;
+    vector <int> elevs;
+    int i = 1;
+    
+    cout << "Boiling Point at Altitude Calculator" << endl;
+            
+    while (getline(fin, line)) {
+        istringstream sstr(line);
+        string temp;
+        
+        getline(sstr, temp, ',');
+        cities.push_back(temp);
+        getline(sstr, temp, ',');
+        
+
+        getline(sstr, temp, ',');
+        elevs.push_back(stoi(temp));
+        
+        i++;
+        cout << i-1 << ". " << cities[i-2] << endl;
+    }
+    
+    cout << "Enter city number: ";
+    cin >> i;
+    
+    cout << "The boiling point at " << cities[i-1] << " is " << elevation_to_boiling_point(elevs[i-1]) << " degrees Fahrenheit." << endl;
+
+    fin.close();
     return 0;
 }

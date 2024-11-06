@@ -1,42 +1,73 @@
-/* Program Name: PROGRAM NAME HERE
- * Student Name: YOUR NAME HERE
- * Net ID: NETID HERE
- * Student ID: STUDENT ID HERE (000-12-3456)
- * Program Description: BRIEF, 1-2 SENTENCE DESCRIPTION HERE */
-
-//! Remember: your comments
-//! Remember: your formatting and indentation
-//  - auto-format in vim: gg=G in normal mode, in vscode: alt+shift+f
-//! Remember: check your solution with the gradescripts
-//  - gradescript command: `python3.11 scripts/test.py mpg.cpp`
-
 #include <iostream>
 #include <limits>
-#include <string>
+#include <string.h>
+#include <stdio.h>
 
 using namespace std;
 
-/* Error check example for reference (delete later)
-  while (true) {
-    cout << "Enter a value: ";
-    if (!(cin >> value)) {
-      // clear the error state. While cin is in an error state, it
-      cin.clear();
-      // ignore up to the next newline or EOF
-      cin.ignore(numeric_limits<streamsize>::max(), '\n');
-      cout << "Invalid input. Please try again." << endl;
-    } else {
-      cout << "Success! Value is: " << value << endl;
-      break;
+double get_double_input(string type, string measure) {
+    double value;
+    while (true) {
+        cout << "Enter " << type << "'s " << measure << ": ";
+        if (!(cin >> value)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        } else {
+            return value;
+        }
     }
-  }
- */
+}
+
+string func(double car_miles, double car_gallons, double truck_miles, double truck_gallons) {
+    while (1) {
+        cout << "Enter command: ";
+        string vehicle_type;
+        cin >> vehicle_type;
+        
+        if (vehicle_type.find("car") != string::npos) {
+            car_miles += get_double_input("car", "miles");
+            car_gallons += get_double_input("car", "gallons");
+            continue;
+        }
+        if (vehicle_type.find("truck") != string::npos) {
+            truck_miles += get_double_input("truck", "miles");
+            truck_gallons += get_double_input("truck", "gallons");
+            continue;
+        }
+        if (vehicle_type.find("done") != string::npos) {
+            break;
+        }
+        else {
+            cout << "Unknown command." << endl;
+        }
+    }
+
+    char buf[256];
+    char temp[64];
+    
+    if (car_miles == 0) {
+        snprintf(temp, 256, "Fleet has no cars.\n");
+        strcat(buf, temp);
+    } else {
+        double car_avg_mpg = car_miles / car_gallons;
+        snprintf(temp, 256, "Average car MPG = %.5f\n", car_avg_mpg);
+        strcat(buf, temp);
+    }
+     
+    if (truck_miles == 0) {
+        snprintf(temp, 256, "Fleet has no trucks.\n");
+        strcat(buf, temp);
+    } else {
+        double truck_avg_mpg = truck_miles / truck_gallons;
+        snprintf(temp, 256, "Average truck MPG = %.5f\n", truck_avg_mpg);
+        strcat(buf, temp);
+    }
+    return buf;
+}
 
 int main() {
-    //! You do not need a vector, you can keep track of all the information with
-    //! doubles
-
-    // TODO
-
+    
+    cout << func(0, 0, 0, 0);
+    
     return 0;
 }
