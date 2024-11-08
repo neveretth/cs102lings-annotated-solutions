@@ -99,18 +99,26 @@ def print_fatal(
     )
 
 
+def print_test_failure(test_name: str, reason: str):
+    print(
+        f"{INDENT}{TEST_SUBHEADER_STYLE}{test_name:10}{RESET} {TEST_FAILURE_STYLE}{reason}{RESET}"
+    )
+
+
 def print_result(test_name: str, is_passed: bool):
     if is_passed:
         print(
             f"{INDENT}{TEST_SUBHEADER_STYLE}{test_name:10}{RESET} {TEST_SUCCESS_STYLE}passed{RESET}"
         )
     else:
-        print(
-            f"{INDENT}{TEST_SUBHEADER_STYLE}{test_name:10}{RESET} {TEST_FAILURE_STYLE}failed{RESET}"
-        )
+        print_test_failure(test_name, "failed")
 
 
 def print_missing(test_name: str):
+    print_test_failure(test_name, "missing")
+
+
+def print_skipped(test_name: str):
     print(
-        f"{INDENT}{TEST_SUBHEADER_STYLE}{test_name:10}{RESET} {TEST_FAILURE_STYLE}missing{RESET}"
+        f"{INDENT}{TEST_SUBHEADER_STYLE}{test_name:10}{RESET} {TEST_FAILURE_STYLE}skipped{RESET}"
     )

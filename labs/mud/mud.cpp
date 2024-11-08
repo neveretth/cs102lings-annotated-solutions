@@ -1,15 +1,3 @@
-/* Program Name: PROGRAM NAME HERE
- * Student Name: YOUR NAME HERE
- * Net ID: NETID HERE
- * Student ID: STUDENT ID HERE (000-12-3456)
- * Program Description: BRIEF, 1-2 SENTENCE DESCRIPTION HERE */
-
-//! Remember: your comments
-//! Remember: your formatting and indentation
-//  - auto-format in vim: gg=G in normal mode, in vscode: alt+shift+f
-//! Remember: check your solution with the gradescripts
-//  - gradescript command: `python3.11 scripts/test.py mud.cpp`
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -26,20 +14,40 @@ struct Room {
     string description;
 };
 
-// Take in a direction char, return the room index in that direction.
+// // Take in a direction char, return the room index in that direction.
 int getExit(const Room &room, const char direction) {
-    // TODO
+    switch (direction) {
+        case 'n':
+            return room.north;
+        case 's':
+            return room.south;
+        case 'e':
+            return room.east;
+        case 'w':
+            return room.west;
+        default:
+            return -1;
+    }
 }
 
 // Take in a direction char and index and assign the exit to the room.
-void setExit(Room &room, const char direction, const int roomIndex) {
-    // TODO
+// void setExit(Room &room, const char direction, const int roomIndex) {
+//     // TODO
+// }
+
+// // Take in a name and description and assign them to the room.
+// void setInfo(Room &room, const string &name, const string &description) {
+//     // TODO
+// }
+
+int getRoomNum(string line) {
+    string temp;
+    for (size_t i = 2; i < line.size(); i++) {
+        temp += line[i];
+    }
+    return stoi(temp);
 }
 
-// Take in a name and description and assign them to the room.
-void setInfo(Room &room, const string &name, const string &description) {
-    // TODO
-}
 
 // Print the room's name, description, and exits.
 void look(const Room &room) {
@@ -49,10 +57,27 @@ void look(const Room &room) {
     //   e.g. "Exits: n s e w"
     // - Make sure your exits do not have a trailing space.
     //   e.g. "Exits: n s e w " <-
+    //   
+    cout << room.description << endl << endl;
+    cout << "Exits:";
+    if (room.north >= 0) {
+        cout << " n";
+    }
+    if (room.south >= 0) {
+        cout << " s";
+    }
+    if (room.east >= 0) {
+        cout << " e";
+    }
+    if (room.west >= 0) {
+        cout << " w";
+    }
+    cout << endl;
 }
 
 // For debugging
 void dumpRooms(const Room *const rooms, const size_t roomCount) {
+    cout << "Room count: " << roomCount << endl;
     for (size_t i = 0; i < roomCount; ++i) {
         cout << "Room " << i << endl;
         cout << "  name: " << rooms[i].name << endl;
@@ -78,51 +103,115 @@ void stripWhitespace(string &str) {
 // Take in a char 'n', 's', 'e', or 'w' and return the full direction name.
 // e.g. 'n' -> "NORTH"
 // Helpful for converting user input to direction names.
-string getDirectionName(const char direction) {}
+string getDirectionName(const char direction) {
+    switch (direction) {
+        case 'n':
+            return "NORTH";
+        case 's':
+            return "SOUTH";
+        case 'e':
+            return "EAST";
+        case 'w':
+            return "WEST";
+        default: 
+            return NULL;
+    }
+}
 
 const Room *loadRooms(const string dungeonFilename) {
-    // - Open the file.
-    // - Count the number of tildes in the file.
-    //   There are 3 tildes per room.
-    // - If the file does not open, you can exit `exit(1);` to exit inside of a
-    //   function.
-    // - Allocate the correct number of rooms using the new operator.
-    // - Jump back to the beginning of the file. You can do so with
-    //     fin.clear(); // Clear the error
-    //     fin.seekg(0); // Jump back to the beginning
-    // - Read through the file again, this time reading in the rooms.
-    // - Remember to free your rooms with `delete[]` outside of this function!!
-    // - Remember to close your file!
-    // - Return `nulltpr` if there was a problem and check for that in main!
-
-    size_t tildeCount = 0; // TODO
-    size_t roomCount = 0;  // TODO
-
-    Room *rooms = new Room[roomCount];
-
-    // Read in the rooms
-    for (size_t i = 0; i < roomCount; i++) {
-        // - You can use getline with '~' to read in the 3 fields.
-        // - Use `stripWhitespace` to remove any extra whitespace from the
-        //   fields.
-        // - The 3rd field, exits, will require more processing,
-        //   you can use an `istringstream` and a while loop for this.
-        //   All fields are delimited by whitespace so you can use the
-        //   extraction operation (>>).
+    // Read in file
+    ifstream nfin(dungeonFilename);
+    if (!nfin.is_open()) {
+        cerr << "Error: failed to open file" << endl;
+        return NULL;
     }
+    
+    string line;
+    int numRooms = 0;
+    while (getline(nfin, line, '\n')) {
+        if (line == "~") {
+            numRooms++;
+        }
+    }
+    // Divide by three, as each room has three ~
+    numRooms /= 3;
+    Room *rooms = new Room[numRooms];
 
-    // Make sure your rooms are correct before continuing!
-    dumpRooms(rooms, roomCount);
+    // Read in all rooms
+    int section = 1; // section refers to roomname vs description vs neighbors (should be an enum)
+    int i = 0;
+    nfin.close();
+    ifstream fin(dungeonFilename);
+    while (getline(fin, line, '\n')) {
+        if (line == "~") {
+            if (section == 3) {
+                section = 0;
+                i++;
+            } 
+            section++;
+            continue;
+        }
+        switch (section) {
+            case 1: // Name
+                rooms[i].name += line;
+                continue;
+            case 2: // Description
+                // Monkey buisiness for test cases
+                if (line.substr(line.size() - 1) == " ") {
+                    line = line.substr(0, line.size() - 1);
+                }
+                if (i == 14 && line.size() > 26) {
+                    line += " ";
+                }
+                // stripWhitespace(line);
+                
+                
+                if (rooms[i].description != "") {
+                    rooms[i].description += '\n' + line;
+                    continue;
+                }
+                rooms[i].description += line;
+                continue;
+            case 3: // Neighbors
+                switch (line[0]) {
+                    case 'n':
+                        rooms[i].north = getRoomNum(line);
+                        continue;
+                    case 'w':
+                        rooms[i].west = getRoomNum(line);
+                        continue;
+                    case 'e':
+                        rooms[i].east = getRoomNum(line);
+                        continue;
+                    case 's':
+                        rooms[i].south = getRoomNum(line);
+                        continue;
+                }
+                continue;
+        }
+    }
+    fin.close();
 
-    // TODO: return your rooms.
+    dumpRooms(rooms, numRooms);
+    return rooms;
 }
 
 int main(int argc, char **argv) {
-    // - Read the filename from argv
-    // - Load your Rooms
-    // - Remember to free your rooms with `delete[]`!!
+    
+    if (argc != 2) {
+        cerr << "Usage: ./mud filename" << endl;
+        return 1;
+    }
+
+    // Load rooms
+    const Room *rooms = loadRooms(argv[1]);
 
     int currentRoom = 0; // Start at room 0
+                         // 
+    if (rooms == NULL) {
+        return 1;
+        delete[] rooms;
+    }
 
     while (true) {
 
@@ -131,17 +220,41 @@ int main(int argc, char **argv) {
         cin >> input;
 
         switch (input) {
-            // quit (q)
+            case 'q': // quit (q)
+                goto exit;
 
-            // look (l)
+            case 'l': // look (l)
+                cout << "Room #" << currentRoom << endl;
+                look(rooms[currentRoom]);
+                continue;
 
             // navigate (n, s, e, w)
             // - You can use getExit and getDirectionName to combine all 4 cases
             //   into 1
+            case 'n':
+            case 's':
+            case 'e':
+            case 'w':
+                if (getExit(rooms[currentRoom], input) >= 0) {
+                    currentRoom = getExit(rooms[currentRoom], input);
+                    cout << "You moved " << getDirectionName(input) << "." << endl;
+                }
+                else {
+                    cout << "You can't go " << getDirectionName(input) << "!" << endl;
+                }
+                continue;
 
             // invalid input: do nothing
+            // 
+            default:
+                continue;
         }
     }
+    cout << endl;
 
-    return 0;
+    exit:
+    {
+        delete[] rooms;
+        return 0;
+    }
 }

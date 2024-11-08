@@ -23,6 +23,7 @@ from .formatting import (
     ALL_TESTS_PASSED_STYLE,
     RESET,
     print_missing,
+    print_skipped,
     print_warning,
     print_error,
     print_fatal,
@@ -37,7 +38,7 @@ def run_program(
     stdin_path: Path,
     user_stdout_path: Path,
     user_stderr_path: Path,
-):
+) -> tuple[bool, int]:
     exit_status = shell(
         command=f"timeout {timeout_duration} {command}",
         stdin_path=stdin_path,
@@ -52,7 +53,7 @@ def run_program(
             f"Example: {CODE_STYLE}--timeout 10s{RESET}",
             end="\n\n",
         )
-        return False
+        return False, exit_status
 
     is_error = exit_status != 0
     is_expected_error = expected_exit_status != 0
@@ -62,16 +63,16 @@ def run_program(
             "Expected non-zero exit status",
             indent=2,
         )
-        return False
+        return False, exit_status
 
     if not is_expected_error and is_error:
         print_error(
             f"Received unexpected non-zero exit status: {CODE_STYLE}{exit_status}{RESET}",
             indent=2,
         )
-        return False
+        return False, exit_status
 
-    return True
+    return True, exit_status
 
 
 def format_output(
@@ -152,6 +153,7 @@ def diff_output(
 def run_leak_check(
     command: str,
     solution_exit_status: int,
+    user_exit_status: int,
     stdin_path: Path,
     user_leak_report_path: Path,
     is_leak_check: bool,
@@ -170,6 +172,11 @@ def run_leak_check(
     # valgrind does not work for non-zero exit statuses
     if solution_exit_status != 0:
         return True
+
+    if user_exit_status != 0:
+        print_skipped("leak-check")
+        print()
+        return False
 
     is_passed = valgrind(command, stdin_path, user_leak_report_path)
 
@@ -416,7 +423,7 @@ def run_test(
         else f"./{BIN_FILENAME}"
     )
 
-    program_is_passed = run_program(
+    program_is_passed, user_exit_status = run_program(
         command=command_with_arguments,
         timeout_duration=script_config.timeout_duration,
         expected_exit_status=solution_exit_status,
@@ -454,6 +461,7 @@ def run_test(
     leak_check_is_passed = run_leak_check(
         command=command_with_arguments,
         solution_exit_status=solution_exit_status,
+        user_exit_status=user_exit_status,
         stdin_path=stdin_path,
         user_leak_report_path=user_leak_report_path,
         is_leak_check=script_config.is_leak_check

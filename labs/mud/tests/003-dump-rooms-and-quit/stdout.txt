@@ -1,3 +1,4 @@
+Room count: 25
 Room 0
   name: Room #0
   description: You are at the start. Your journey begins..
